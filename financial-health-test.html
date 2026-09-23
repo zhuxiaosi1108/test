@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>财务健康度评估 | 3分钟测出你的财务体检报告</title>
+<style>
+:root {
+  --c-bg: linear-gradient(160deg, #F0FDF4 0%, #F0F9FF 50%, #FFFBEB 100%);
+  --c-surface: #FFFFFF;
+  --c-primary: #059669;
+  --c-primary-dark: #047857;
+  --c-secondary: #0EA5E9;
+  --c-accent: #F59E0B;
+  --c-danger: #EF4444;
+  --c-warning: #F97316;
+  --c-teal: #14B8A6;
+  --c-text: #1E293B;
+  --c-text-light: #475569;
+  --c-text-muted: #94A3B8;
+  --c-border: #E2E8F0;
+  --c-shadow: 0 4px 24px rgba(5,150,105,0.06);
+  --c-shadow-lg: 0 8px 40px rgba(5,150,105,0.10);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --font: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Helvetica Neue', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--font); color: var(--c-text); background: var(--c-bg); background-attachment: fixed; min-height: 100vh; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+#app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; overflow: hidden; }
+.screen { display: none; min-height: 100vh; padding: 24px 20px; flex-direction: column; animation: fadeIn 0.5s ease; }
+.screen.active { display: flex; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.9; } }
+@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes barGrow { from { width: 0; } }
+
+#intro-screen { justify-content: center; align-items: center; text-align: center; }
+.intro-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(5,150,105,0.1); color: var(--c-primary); font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: var(--radius-pill); margin-bottom: 24px; }
+.intro-badge .dot { width: 8px; height: 8px; background: var(--c-primary); border-radius: 50%; animation: pulse 2s infinite; }
+.intro-emoji { font-size: 56px; margin-bottom: 12px; animation: bounce 3s infinite; }
+#intro-screen h1 { font-size: 26px; font-weight: 800; line-height: 1.3; margin-bottom: 12px; background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+#intro-screen .subtitle { font-size: 15px; color: var(--c-text-light); margin-bottom: 28px; max-width: 320px; }
+.intro-features { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; width: 100%; max-width: 340px; }
+.intro-feature { display: flex; align-items: center; gap: 12px; background: var(--c-surface); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--c-shadow); text-align: left; }
+.intro-feature .icon { font-size: 22px; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #F0FDF4, #F0F9FF); border-radius: var(--radius-sm); }
+.intro-feature .text { font-size: 14px; color: var(--c-text); font-weight: 500; }
+.intro-feature .text small { display: block; font-weight: 400; color: var(--c-text-light); font-size: 12px; margin-top: 2px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; cursor: pointer; font-family: var(--font); font-weight: 600; border-radius: var(--radius-pill); transition: all 0.25s ease; -webkit-tap-highlight-color: transparent; }
+.btn-primary { background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); color: #fff; font-size: 16px; padding: 16px 40px; box-shadow: 0 4px 16px rgba(5,150,105,0.35); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(5,150,105,0.45); }
+.btn-primary:active { transform: translateY(0); }
+.btn-secondary { background: var(--c-surface); color: var(--c-text); font-size: 15px; padding: 14px 32px; border: 1.5px solid var(--c-border); box-shadow: var(--c-shadow); }
+.btn-secondary:hover { border-color: var(--c-secondary); color: var(--c-secondary); }
+
+.progress-container { margin-bottom: 28px; }
+.progress-bar { height: 6px; background: #E2E8F0; border-radius: var(--radius-pill); overflow: hidden; margin-bottom: 10px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--c-primary), var(--c-secondary)); border-radius: var(--radius-pill); transition: width 0.4s cubic-bezier(0.4,0,0.2,1); width: 0%; }
+.progress-text { font-size: 13px; color: var(--c-text-muted); display: flex; justify-content: space-between; }
+.progress-text .current { color: var(--c-primary); font-weight: 600; }
+.dim-label { font-size: 11px; color: var(--c-text-muted); text-align: center; margin-top: 4px; }
+
+#question-screen { justify-content: flex-start; }
+.question-card { background: var(--c-surface); border-radius: var(--radius-lg); padding: 32px 24px; box-shadow: var(--c-shadow-lg); margin-bottom: 20px; }
+.question-tag { display: inline-block; font-size: 12px; font-weight: 600; color: var(--c-secondary); background: rgba(14,165,233,0.08); padding: 4px 12px; border-radius: var(--radius-pill); margin-bottom: 14px; }
+.question-title { font-size: 20px; font-weight: 700; line-height: 1.4; margin-bottom: 8px; color: var(--c-text); }
+.question-desc { font-size: 14px; color: var(--c-text-muted); margin-bottom: 24px; }
+
+.options { display: flex; flex-direction: column; gap: 12px; }
+.option { display: flex; align-items: center; gap: 14px; background: var(--c-surface); border: 2px solid var(--c-border); border-radius: var(--radius-md); padding: 16px 18px; cursor: pointer; transition: all 0.2s ease; text-align: left; position: relative; overflow: hidden; }
+.option:hover { border-color: var(--c-secondary); background: rgba(14,165,233,0.03); }
+.option:active { transform: scale(0.98); }
+.option.selected { border-color: var(--c-primary); background: rgba(5,150,105,0.06); }
+.option.selected::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--c-primary), var(--c-secondary)); }
+.option-letter { width: 32px; height: 32px; border-radius: 50%; background: #F5F5F5; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--c-text-muted); flex-shrink: 0; transition: all 0.2s ease; }
+.option.selected .option-letter { background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); color: #fff; }
+.option-text { flex: 1; }
+.option-text .main { font-size: 15px; font-weight: 600; color: var(--c-text); }
+.option-text .desc { font-size: 13px; color: var(--c-text-light); margin-top: 2px; }
+
+#loading-screen { justify-content: center; align-items: center; text-align: center; }
+.loading-spinner { width: 60px; height: 60px; border: 4px solid #E2E8F0; border-top-color: var(--c-primary); border-right-color: var(--c-secondary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 24px; }
+.loading-text { font-size: 18px; font-weight: 700; color: var(--c-text); margin-bottom: 8px; }
+.loading-sub { font-size: 14px; color: var(--c-text-muted); }
+.loading-steps { margin-top: 24px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.loading-step { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--c-text-muted); opacity: 0; transition: opacity 0.3s; }
+.loading-step.active { opacity: 1; color: var(--c-primary); font-weight: 600; }
+.loading-step.done { opacity: 1; color: var(--c-teal); }
+.loading-step .check { font-size: 16px; }
+
+#result-screen { justify-content: flex-start; padding-bottom: 60px; }
+.result-header { text-align: center; margin-bottom: 24px; }
+.result-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--c-primary); background: rgba(5,150,105,0.1); padding: 4px 14px; border-radius: var(--radius-pill); margin-bottom: 12px; }
+.result-emoji { font-size: 56px; margin-bottom: 8px; }
+.result-score-label { font-size: 13px; color: var(--c-text-muted); margin-bottom: 4px; }
+.result-score { font-size: 48px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.result-grade { font-size: 22px; font-weight: 700; color: var(--c-text); margin-bottom: 6px; }
+.result-tagline { font-size: 14px; color: var(--c-text-muted); }
+
+.score-ring-wrap { display: flex; justify-content: center; margin-bottom: 8px; }
+.score-ring { width: 120px; height: 120px; position: relative; }
+.score-ring svg { transform: rotate(-90deg); }
+.score-ring .bg-circle { fill: none; stroke: #E2E8F0; stroke-width: 8; }
+.score-ring .fill-circle { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1); }
+.score-ring .center { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+.score-ring .center .num { font-size: 32px; font-weight: 900; line-height: 1; }
+.score-ring .center .unit { font-size: 12px; color: var(--c-text-muted); }
+
+.result-card { background: var(--c-surface); border-radius: var(--radius-lg); padding: 24px 20px; box-shadow: var(--c-shadow-lg); margin-bottom: 16px; }
+.result-card h3 { font-size: 16px; font-weight: 700; color: var(--c-text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.result-card h3 .emoji { font-size: 20px; }
+.result-desc { font-size: 14px; color: var(--c-text-light); line-height: 1.8; margin-bottom: 16px; }
+
+.dim-chart { display: flex; flex-direction: column; gap: 14px; }
+.dim-row { display: flex; flex-direction: column; gap: 4px; }
+.dim-bar-container { display: flex; align-items: center; gap: 8px; }
+.dim-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.dim-bar-track { flex: 1; height: 24px; background: #F1F5F9; border-radius: var(--radius-sm); overflow: hidden; position: relative; }
+.dim-bar-fill { height: 100%; border-radius: var(--radius-sm); transition: width 0.8s cubic-bezier(0.4,0,0.2,1); display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 11px; font-weight: 700; color: #fff; min-width: 28px; }
+.dim-bar-fill.good { background: linear-gradient(90deg, #059669, #10B981); }
+.dim-bar-fill.mid { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+.dim-bar-fill.bad { background: linear-gradient(90deg, #EF4444, #F87171); }
+.dim-label-row { font-size: 11px; color: var(--c-text-muted); display: flex; justify-content: space-between; padding: 0 4px; }
+
+.diag-list { display: flex; flex-direction: column; gap: 10px; }
+.diag-item { display: flex; align-items: flex-start; gap: 10px; padding: 14px; border-radius: var(--radius-md); }
+.diag-item.bad { background: #FEF2F2; }
+.diag-item.mid { background: #FFFBEB; }
+.diag-item.good { background: #F0FDF4; }
+.diag-item .dicon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.diag-item .dtext { flex: 1; }
+.diag-item .dtext .dtitle { font-size: 14px; font-weight: 600; color: var(--c-text); margin-bottom: 2px; }
+.diag-item .dtext .ddesc { font-size: 13px; color: var(--c-text-light); line-height: 1.5; }
+
+.action-list { display: flex; flex-direction: column; gap: 10px; }
+.action-item { display: flex; align-items: flex-start; gap: 10px; background: #F8FAFC; border-radius: var(--radius-md); padding: 14px; }
+.action-item .anum { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.action-item .atext { flex: 1; }
+.action-item .atext .atitle { font-size: 14px; font-weight: 600; color: var(--c-text); margin-bottom: 2px; }
+.action-item .atext .adesc { font-size: 13px; color: var(--c-text-light); line-height: 1.5; }
+
+.tip-box { background: #FFFBEB; border: 1px solid rgba(245,158,11,0.2); border-radius: var(--radius-md); padding: 14px 16px; font-size: 13px; color: var(--c-text-light); line-height: 1.6; }
+.tip-box strong { color: var(--c-accent); }
+
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.metric-card { background: #F8FAFC; border-radius: var(--radius-md); padding: 12px; text-align: center; }
+.metric-card .mlabel { font-size: 11px; color: var(--c-text-muted); margin-bottom: 4px; }
+.metric-card .mvalue { font-size: 18px; font-weight: 800; color: var(--c-text); }
+.metric-card .munit { font-size: 12px; color: var(--c-text-muted); }
+
+.share-section { text-align: center; }
+.share-title { font-size: 15px; font-weight: 700; color: var(--c-text); margin-bottom: 6px; }
+.share-desc { font-size: 13px; color: var(--c-text-muted); margin-bottom: 16px; }
+.share-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.app-footer { text-align: center; padding: 20px 0 10px; font-size: 12px; color: var(--c-text-muted); }
+.nav-buttons { display: flex; gap: 10px; margin-top: 8px; }
+.nav-back { flex: 0 0 auto; background: transparent; border: 1.5px solid var(--c-border); color: var(--c-text-light); padding: 12px 20px; font-size: 14px; border-radius: var(--radius-pill); cursor: pointer; transition: all 0.2s; }
+.nav-back:hover { border-color: var(--c-text-light); color: var(--c-text); }
+.nav-back:disabled { opacity: 0.3; cursor: not-allowed; }
+
+@media (max-width: 360px) { #app { font-size: 15px; } .question-card { padding: 24px 18px; } .question-title { font-size: 18px; } .option { padding: 14px; } .option-text .main { font-size: 14px; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="screen active" id="intro-screen">
+    <div class="intro-badge"><span class="dot"></span> 财务体检 · 已超8000人测过</div>
+    <div class="intro-emoji">💰</div>
+    <h1>个人财务健康度评估</h1>
+    <p class="subtitle">12道题，3分钟给你的财务状况做一次全面体检，附针对性改善方案</p>
+    <div class="intro-features">
+      <div class="intro-feature"><div class="icon">⏱️</div><div class="text">3分钟快速体检<small>12题覆盖8大财务维度</small></div></div>
+      <div class="intro-feature"><div class="icon">📊</div><div class="text">8维健康度评分<small>储蓄/债务/应急/保障/投资…</small></div></div>
+      <div class="intro-feature"><div class="icon">📋</div><div class="text">附改善行动计划<small>诊断问题+分步改善建议</small></div></div>
+    </div>
+    <button class="btn btn-primary" onclick="startTest()">开始体检</button>
+  </div>
+
+  <div class="screen" id="question-screen">
+    <div class="progress-container">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-text"><span><span class="current" id="q-current">1</span> / 12</span><span id="q-percent">8%</span></div>
+      <div class="dim-label" id="dim-label">储蓄能力</div>
+    </div>
+    <div class="question-card" id="question-content"></div>
+  </div>
+
+  <div class="screen" id="loading-screen">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">正在生成你的财务体检报告...</div>
+    <div class="loading-sub">AI分析中，请稍候</div>
+    <div class="loading-steps">
+      <div class="loading-step" id="step-1"><span>计算8维健康度</span></div>
+      <div class="loading-step" id="step-2"><span>诊断财务问题</span></div>
+      <div class="loading-step" id="step-3"><span>生成改善方案</span></div>
+    </div>
+  </div>
+
+  <div class="screen" id="result-screen"></div>
+</div>
+
+<script>
+const questions = [
+  { dim:"储蓄", label:"储蓄能力", tag:"储蓄维度", title:"你每月能存下多少钱？", desc:"扣掉所有支出后真正存下来的",
+    options:[
+      {text:"基本存不下", desc:"月光族，甚至入不敷出", score:0},
+      {text:"不到10%", desc:"能存一点但不多", score:2},
+      {text:"10%-20%", desc:"有储蓄习惯但比例一般", score:4},
+      {text:"20%以上", desc:"储蓄率不错", score:6} ]},
+  { dim:"应急", label:"应急储备", tag:"应急维度", title:"你的应急储备金够生活多久？", desc:"突然断收入，存款能撑几个月",
+    options:[
+      {text:"不到1个月", desc:"几乎没有应急储备", score:0},
+      {text:"1-3个月", desc:"有点储备但不充分", score:2},
+      {text:"3-6个月", desc:"基本达标", score:5},
+      {text:"6个月以上", desc:"应急储备充足", score:6} ]},
+  { dim:"债务", label:"债务管理", tag:"债务维度", title:"你目前的债务状况是？", desc:"信用卡、网贷、房贷等（不含正常还贷）",
+    options:[
+      {text:"有高息负债", desc:"信用卡分期/网贷没还清", score:0},
+      {text:"有少量低息负债", desc:"花呗/借呗偶尔分期", score:3},
+      {text:"只有房贷/车贷", desc:"正常资产性负债", score:5},
+      {text:"无负债", desc:"完全无债一身轻", score:6} ]},
+  { dim:"消费", label:"消费控制", tag:"消费维度", title:"你每月的固定支出占总收入多少？", desc:"房租/房贷/车贷/保险等刚性支出",
+    options:[
+      {text:"超过70%", desc:"几乎没有弹性空间", score:0},
+      {text:"50%-70%", desc:"比较紧张", score:2},
+      {text:"30%-50%", desc:"比较合理", score:5},
+      {text:"不到30%", desc:"支出结构很健康", score:6} ]},
+  { dim:"投资", label:"投资意识", tag:"投资维度", title:"你目前的投资状况是？", desc:"不含银行活期存款",
+    options:[
+      {text:"完全没投资", desc:"钱都在活期或余额宝", score:0},
+      {text:"偶尔买点", desc:"跟风买过基金/股票但没体系", score:2},
+      {text:"有定期投资", desc:"每月定投基金/理财", score:5},
+      {text:"有投资体系", desc:"资产配置+定期再平衡", score:6} ]},
+  { dim:"保障", label:"保障配置", tag:"保障维度", title:"你配置了哪些保险？", desc:"社保之外的商业保险",
+    options:[
+      {text:"没有任何商业保险", desc:"只有社保", score:0},
+      {text:"有意外险/医疗险", desc:"基础保障有一些", score:3},
+      {text:"有重疾+医疗", desc:"核心保障已配置", score:5},
+      {text:"保障体系完整", desc:"重疾+医疗+意外+寿险", score:6} ]},
+  { dim:"规划", label:"财务规划", tag:"规划维度", title:"你有明确的财务目标吗？", desc:"比如买房/退休/子女教育等",
+    options:[
+      {text:"没想过", desc:"走一步看一步", score:0},
+      {text:"大概有想法", desc:"想存钱但没具体目标", score:2},
+      {text:"有明确目标", desc:"知道要存多少、存多久", score:5},
+      {text:"有完整规划", desc:"多目标+时间表+执行中", score:6} ]},
+  { dim:"记账", label:"财务习惯", tag:"习惯维度", title:"你平时记账吗？", desc:"记录收支情况",
+    options:[
+      {text:"从来不记", desc:"不知道钱花哪了", score:0},
+      {text:"偶尔记一下", desc:"想记但坚持不了", score:2},
+      {text:"大致记录", desc:"记大账不记小账", score:4},
+      {text:"坚持记账", desc:"每笔都记，月底复盘", score:6} ]},
+  { dim:"收入", label:"收入结构", tag:"收入维度", title:"你的收入来源是？", desc:"除主业外的收入情况",
+    options:[
+      {text:"只有一份工资", desc:"收入来源单一", score:1},
+      {text:"工资+少量副业", desc:"有第二收入但不多", score:3},
+      {text:"工资+稳定副业", desc:"双收入结构", score:5},
+      {text:"多元被动收入", desc:"有投资收益/租金等", score:6} ]},
+  { dim:"养老", label:"养老意识", tag:"养老维度", title:"你有为养老做储备吗？", desc:"社保之外的养老规划",
+    options:[
+      {text:"还没想过", desc:"觉得太遥远了", score:0},
+      {text:"偶尔想想", desc:"知道要准备但没行动", score:2},
+      {text:"开始行动了", desc:"有养老理财/年金等", score:5},
+      {text:"有养老规划", desc:"目标明确+执行中", score:6} ]},
+  { dim:"风险", label:"风险意识", tag:"风险维度", title:"如果你的收入突然中断，你会？", desc:"失业/生病等突发情况",
+    options:[
+      {text:"马上就还不上了", desc:"完全没有缓冲", score:0},
+      {text:"能撑1-2个月", desc:"很焦虑但能想办法", score:2},
+      {text:"能撑3-6个月", desc:"有应急储备撑着", score:5},
+      {text:"影响不大", desc:"有充足储备+保险", score:6} ]},
+  { dim:"认知", label:"财务认知", tag:"认知维度", title:"你对自己的财务状况了解程度？", desc:"能说清楚自己的资产负债",
+    options:[
+      {text:"完全不清楚", desc:"不知道自己有多少钱", score:0},
+      {text:"大概知道", desc:"知道个总数但没细算", score:2},
+      {text:"比较清楚", desc:"定期盘点收支和资产", score:5},
+      {text:"非常清楚", desc:"有资产负债表和现金流表", score:6} ]},
+];
+
+const grades = [
+  {
+    min:0, max:20, emoji:"🚨", grade:"财务危重", color:"#EF4444",
+    tagline:"急需抢救，但别慌——第一步永远是最重要的",
+    desc:"你的财务状况目前处于高危状态。收入可能不够稳定，支出压力大，储蓄和应急储备几乎为零，债务可能也是你的心病。但这不是终点——很多人都是从这里开始翻身的。关键是现在就行动，别等问题自己变好。",
+    actions:[
+      {title:"先止血", desc:"立刻梳理所有债务，列清单（金额+利率+月供），高息负债优先还"},
+      {title:"强制储蓄", desc:"哪怕每月先存500元，设置发工资自动转存，先建立习惯"},
+      {title:"记一个月账", desc:"用任何记账App记满一个月，搞清楚钱花哪了"} ],
+    tip:"不要试图同时解决所有问题。先做一件事：记账+存500元，坚持一个月你就比很多人强了。"
+  },
+  {
+    min:21, max:35, emoji:"⚠️", grade:"财务亚健康", color:"#F97316",
+    tagline:"在危险边缘，趁现在还来得及",
+    desc:"你的财务状况有点像亚健康——没到危机，但也不健康。可能有一定的储蓄但不够多，有保险但不全，投资意识有但没行动。最大的问题是「知道但没做」。趁现在问题还不大，赶紧补课。",
+    actions:[
+      {title:"补应急储备", desc:"目标3个月生活费，先从存够1个月开始"},
+      {title:"清理坏债", desc:"把信用卡分期和网贷清掉，每月多出来的钱用于储蓄"},
+      {title:"配置基础保险", desc:"百万医疗险（几百元/年）+意外险，给自己兜底"} ],
+    tip:"亚健康最怕拖延。给自己定一个3个月计划，每个季度补一个短板，半年后你会感谢自己。"
+  },
+  {
+    min:36, max:50, emoji:"📈", grade:"财务基本健康", color:"#F59E0B",
+    tagline:"基础不错，但还有提升空间",
+    desc:"你的财务状况已经比大多数人健康了。有储蓄习惯，应急储备基本达标，消费也算有控制。但距离「真正健康」还差几步：投资体系不完善，保险配置可能不全，财务目标可能还比较模糊。接下来的重点是系统性提升。",
+    actions:[
+      {title:"完善保险体系", desc:"如果只有医疗险，加上重疾险；如果有重疾，考虑定期寿险"},
+      {title:"建立投资体系", desc:"每月定投宽基指数基金（如沪深300），金额不重要，坚持重要"},
+      {title:"设定财务目标", desc:"写下一个3年目标（如存10万/买房首付），分解到月"} ],
+    tip:"从「健康」到「优秀」的关键是体系化。零散的储蓄和偶尔的投资，不如一个简单的定投+保险+记账系统。"
+  },
+  {
+    min:51, max:65, emoji:"💪", grade:"财务健康", color:"#059669",
+    tagline:"状态不错，离自由越来越近了",
+    desc:"你的财务状况非常健康。储蓄率高、应急储备充足、债务可控、有投资体系、保险齐全。你已经超越了大多数同龄人。现在的你，可以考虑更高级的财务目标——比如加速被动收入、优化资产配置、为更长期的自由做准备。",
+    actions:[
+      {title:"优化资产配置", desc:"检视现有资产分布，考虑跨资产类别（股/债/REITs）配置"},
+      {title:"加速被动收入", desc:"目标：让被动收入覆盖20%→30%→50%月支出"},
+      {title:"规划长期目标", desc:"5-10年的大目标：提前退休？财务自由？传承？"} ],
+    tip:"你已经过了「求生存」阶段。接下来不是更努力，而是更聪明——让资产替你工作，而不是你替资产工作。"
+  },
+  {
+    min:66, max:72, emoji:"🏆", grade:"财务自由度", color:"#0EA5E9",
+    tagline:"你已经在少数人的行列了",
+    desc:"你的财务状况属于极少数人才能达到的水平。被动收入可能已经覆盖了大部分支出，资产配置合理，保障完善，财务规划清晰。你面临的问题不再是「怎么存钱」，而是「怎么让财富持续增长的同时过好生活」——这其实是一个更高级的课题。",
+    actions:[
+      {title:"安全提取率", desc:"年化4%安全提取——每100万资产每年可花4万，持续不枯竭"},
+      {title:"税务优化", desc:"如果资产量大，考虑合法合规的税务优化方案"},
+      {title:"财富传承", desc:"考虑信托/遗嘱等工具，让财富按意愿传承"} ],
+    tip:"财务自由不是终点，而是一种新生活方式的起点。关注的不是数字增长，而是生活质量和人生意义。"
+  },
+];
+
+let currentQ = 0;
+let answers = new Array(12).fill(null);
+
+function startTest() { currentQ = 0; answers = new Array(12).fill(null); showScreen('question-screen'); renderQuestion(); }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+function renderQuestion() {
+  const q = questions[currentQ]; const total = questions.length; const progress = ((currentQ+1)/total)*100;
+  document.getElementById('progress-fill').style.width = progress+'%';
+  document.getElementById('q-current').textContent = currentQ+1;
+  document.getElementById('q-percent').textContent = Math.round(progress)+'%';
+  document.getElementById('dim-label').textContent = q.label;
+  const selectedIdx = answers[currentQ];
+  const html = `
+    <div class="question-tag">${q.tag}</div>
+    <h2 class="question-title">${q.title}</h2>
+    <p class="question-desc">${q.desc}</p>
+    <div class="options">
+      ${q.options.map((opt,i)=>`
+        <div class="option ${selectedIdx===i?'selected':''}" onclick="selectOption(${i})">
+          <div class="option-letter">${String.fromCharCode(65+i)}</div>
+          <div class="option-text"><div class="main">${opt.text}</div><div class="desc">${opt.desc}</div></div>
+        </div>`).join('')}
+    </div>
+    <div class="nav-buttons"><button class="nav-back" onclick="prevQuestion()" ${currentQ===0?'disabled':''}>上一题</button></div>`;
+  const content = document.getElementById('question-content');
+  content.style.animation='none'; content.offsetHeight; content.style.animation='slideInRight 0.4s ease';
+  content.innerHTML = html;
+}
+function selectOption(idx) {
+  answers[currentQ] = idx;
+  document.querySelectorAll('.option').forEach((el,i)=>{ el.classList.toggle('selected', i===idx); });
+  setTimeout(()=>{ if (currentQ < questions.length-1) { currentQ++; renderQuestion(); } else { showLoading(); } }, 300);
+}
+function prevQuestion() { if (currentQ > 0) { currentQ--; renderQuestion(); } }
+function showLoading() {
+  showScreen('loading-screen');
+  document.querySelectorAll('.loading-step').forEach(s=>{s.classList.remove('active','done');});
+  setTimeout(()=>{document.getElementById('step-1').classList.add('active');},300);
+  setTimeout(()=>{document.getElementById('step-1').classList.remove('active');document.getElementById('step-1').classList.add('done');document.getElementById('step-1').innerHTML='<span class="check">✓</span> 计算8维健康度';},900);
+  setTimeout(()=>{document.getElementById('step-2').classList.add('active');},1000);
+  setTimeout(()=>{document.getElementById('step-2').classList.remove('active');document.getElementById('step-2').classList.add('done');document.getElementById('step-2').innerHTML='<span class="check">✓</span> 诊断财务问题';},1600);
+  setTimeout(()=>{document.getElementById('step-3').classList.add('active');},1700);
+  setTimeout(()=>{document.getElementById('step-3').classList.remove('active');document.getElementById('step-3').classList.add('done');document.getElementById('step-3').innerHTML='<span class="check">✓</span> 生成改善方案';},2300);
+  setTimeout(()=>{showResult();},2600);
+}
+function showResult() {
+  const totalScore = answers.reduce((sum,ansIdx,qIdx)=>{ return sum + (ansIdx!==null ? questions[qIdx].options[ansIdx].score : 0); },0);
+  const maxScore = 72;
+  const scorePercent = Math.round((totalScore/maxScore)*100);
+  let grade = grades[0];
+  for (const g of grades) { if (totalScore >= g.min && totalScore <= g.max) { grade = g; break; } }
+
+  // Dimension breakdown
+  const dimLabels = [
+    {label:"储蓄能力", icon:"🐷"}, {label:"应急储备", icon:"🛡️"}, {label:"债务管理", icon:"📋"},
+    {label:"消费控制", icon:"🛒"}, {label:"投资意识", icon:"📈"}, {label:"保障配置", icon:"🛡️"},
+    {label:"财务规划", icon:"🗺️"}, {label:"财务习惯", icon:"📝"}, {label:"收入结构", icon:"💰"},
+    {label:"养老意识", icon:"🌅"}, {label:"风险意识", icon:"⚡"}, {label:"财务认知", icon:"🧠"}
+  ];
+  let dimChartHtml = '';
+  questions.forEach((q,i)=>{
+    const score = answers[i]!==null ? q.options[answers[i]].score : 0;
+    const maxS = 6;
+    const pct = Math.round((score/maxS)*100);
+    const cls = score >= 5 ? 'good' : score >= 3 ? 'mid' : 'bad';
+    dimChartHtml += `
+      <div class="dim-row">
+        <div class="dim-label-row"><span>${dimLabels[i].label}</span><span>${score}/6</span></div>
+        <div class="dim-bar-container">
+          <div class="dim-icon">${dimLabels[i].icon}</div>
+          <div class="dim-bar-track"><div class="dim-bar-fill ${cls}" style="width:${Math.max(8,pct)}%">${pct}%</div></div>
+        </div>
+      </div>`;
+  });
+
+  // Diagnose problems
+  let diagHtml = '';
+  questions.forEach((q,i)=>{
+    if (answers[i]===null) return;
+    const score = q.options[answers[i]].score;
+    const level = score >= 5 ? 'good' : score >= 3 ? 'mid' : 'bad';
+    const icon = level==='good' ? '✅' : level==='mid' ? '⚠️' : '❌';
+    const status = level==='good' ? '健康' : level==='mid' ? '待改善' : '需重视';
+    diagHtml += `<div class="diag-item ${level}"><div class="dicon">${icon}</div><div class="dtext"><div class="dtitle">${dimLabels[i].label} · ${status}</div><div class="ddesc">${q.options[answers[i]].desc}</div></div></div>`;
+  });
+
+  // Actions
+  let actionHtml = grade.actions.map((a,i)=>`<div class="action-item"><div class="anum">${i+1}</div><div class="atext"><div class="atitle">${a.title}</div><div class="adesc">${a.desc}</div></div></div>`).join('');
+
+  // Score ring
+  const circumference = 2 * Math.PI * 50;
+  const dashOffset = circumference * (1 - scorePercent/100);
+
+  const html = `
+    <div class="result-header">
+      <div class="result-badge">💰 你的财务体检报告</div>
+      <div class="result-emoji">${grade.emoji}</div>
+      <div class="score-ring-wrap">
+        <div class="score-ring">
+          <svg width="120" height="120">
+            <circle class="bg-circle" cx="60" cy="60" r="50"></circle>
+            <circle class="fill-circle" cx="60" cy="60" r="50" stroke="${grade.color}" stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}"></circle>
+          </svg>
+          <div class="center"><div class="num" style="color:${grade.color}">${scorePercent}</div><div class="unit">健康分</div></div>
+        </div>
+      </div>
+      <div class="result-grade" style="color:${grade.color}">${grade.grade}</div>
+      <div class="result-tagline">${grade.tagline}</div>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">📋</span> 总体诊断</h3>
+      <p class="result-desc">${grade.desc}</p>
+      <div class="metric-grid">
+        <div class="metric-card"><div class="mlabel">总得分</div><div class="mvalue">${totalScore}<span class="munit">/${maxScore}</span></div></div>
+        <div class="metric-card"><div class="mlabel">健康度</div><div class="mvalue" style="color:${grade.color}">${scorePercent}%</div></div>
+      </div>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">📊</span> 8维健康度</h3>
+      <div class="dim-chart">${dimChartHtml}</div>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">🔍</span> 问题诊断</h3>
+      <div class="diag-list">${diagHtml}</div>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">🎯</span> 改善行动计划</h3>
+      <div class="action-list">${actionHtml}</div>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">💡</span> 关键提醒</h3>
+      <div class="tip-box">${grade.tip}</div>
+    </div>
+
+    <div class="result-card share-section">
+      <div class="share-title">你的财务健康度是多少分？</div>
+      <div class="share-desc">截图保存结果，分享给朋友也来测一测</div>
+      <div class="share-buttons">
+        <button class="btn btn-primary" onclick="retakeTest()">再测一次</button>
+        <button class="btn btn-secondary" onclick="shareResult()">分享结果</button>
+      </div>
+    </div>
+    <div class="app-footer">本测试基于个人财务健康8维度评估模型生成<br>结果仅供参考，具体财务决策请咨询专业人士</div>`;
+  document.getElementById('result-screen').innerHTML = html;
+  showScreen('result-screen');
+}
+function retakeTest() { currentQ = 0; answers = new Array(12).fill(null); showScreen('intro-screen'); }
+function shareResult() {
+  if (navigator.share) { navigator.share({title:'财务健康度评估',text:'我刚做了财务体检，你也来试试！',url:window.location.href}).catch(()=>{}); }
+  else { const url=window.location.href; if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>{alert('链接已复制！去小红书或朋友圈粘贴分享吧～');}).catch(()=>{prompt('复制链接分享给朋友：',url);});} else { prompt('复制链接分享给朋友：',url); } }
+}
+</script>
+</body>
+</html>
