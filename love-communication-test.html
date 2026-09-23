@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>恋爱沟通模式测试 | 测测你在感情里是什么类型</title>
+<style>
+:root {
+  --c-bg: linear-gradient(160deg, #FFF1F2 0%, #FDF2F8 50%, #FFF7ED 100%);
+  --c-surface: #FFFFFF;
+  --c-primary: #EC4899;
+  --c-primary-dark: #DB2777;
+  --c-secondary: #F43F5E;
+  --c-accent: #F59E0B;
+  --c-purple: #A855F7;
+  --c-teal: #14B8A6;
+  --c-text: #1E293B;
+  --c-text-light: #475569;
+  --c-text-muted: #94A3B8;
+  --c-border: #E2E8F0;
+  --c-shadow: 0 4px 24px rgba(236,72,153,0.06);
+  --c-shadow-lg: 0 8px 40px rgba(236,72,153,0.10);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --font: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Helvetica Neue', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--font); color: var(--c-text); background: var(--c-bg); background-attachment: fixed; min-height: 100vh; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+#app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; overflow: hidden; }
+.screen { display: none; min-height: 100vh; padding: 24px 20px; flex-direction: column; animation: fadeIn 0.5s ease; }
+.screen.active { display: flex; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.9; } }
+@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes heartBeat { 0%,100% { transform: scale(1); } 25% { transform: scale(1.1); } 50% { transform: scale(1); } 75% { transform: scale(1.05); } }
+
+#intro-screen { justify-content: center; align-items: center; text-align: center; }
+.intro-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(236,72,153,0.1); color: var(--c-primary); font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: var(--radius-pill); margin-bottom: 24px; }
+.intro-badge .dot { width: 8px; height: 8px; background: var(--c-primary); border-radius: 50%; animation: pulse 2s infinite; }
+.intro-emoji { font-size: 56px; margin-bottom: 12px; animation: heartBeat 3s infinite; }
+#intro-screen h1 { font-size: 26px; font-weight: 800; line-height: 1.3; margin-bottom: 12px; background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+#intro-screen .subtitle { font-size: 15px; color: var(--c-text-light); margin-bottom: 28px; max-width: 320px; }
+.intro-features { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; width: 100%; max-width: 340px; }
+.intro-feature { display: flex; align-items: center; gap: 12px; background: var(--c-surface); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--c-shadow); text-align: left; }
+.intro-feature .icon { font-size: 22px; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #FFF1F2, #FDF2F8); border-radius: var(--radius-sm); }
+.intro-feature .text { font-size: 14px; color: var(--c-text); font-weight: 500; }
+.intro-feature .text small { display: block; font-weight: 400; color: var(--c-text-light); font-size: 12px; margin-top: 2px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; cursor: pointer; font-family: var(--font); font-weight: 600; border-radius: var(--radius-pill); transition: all 0.25s ease; -webkit-tap-highlight-color: transparent; }
+.btn-primary { background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); color: #fff; font-size: 16px; padding: 16px 40px; box-shadow: 0 4px 16px rgba(236,72,153,0.35); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(236,72,153,0.45); }
+.btn-primary:active { transform: translateY(0); }
+.btn-secondary { background: var(--c-surface); color: var(--c-text); font-size: 15px; padding: 14px 32px; border: 1.5px solid var(--c-border); box-shadow: var(--c-shadow); }
+.btn-secondary:hover { border-color: var(--c-secondary); color: var(--c-secondary); }
+
+.progress-container { margin-bottom: 28px; }
+.progress-bar { height: 6px; background: #E2E8F0; border-radius: var(--radius-pill); overflow: hidden; margin-bottom: 10px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--c-primary), var(--c-secondary)); border-radius: var(--radius-pill); transition: width 0.4s cubic-bezier(0.4,0,0.2,1); width: 0%; }
+.progress-text { font-size: 13px; color: var(--c-text-muted); display: flex; justify-content: space-between; }
+.progress-text .current { color: var(--c-primary); font-weight: 600; }
+.dim-label { font-size: 11px; color: var(--c-text-muted); text-align: center; margin-top: 4px; }
+
+#question-screen { justify-content: flex-start; }
+.question-card { background: var(--c-surface); border-radius: var(--radius-lg); padding: 32px 24px; box-shadow: var(--c-shadow-lg); margin-bottom: 20px; }
+.question-tag { display: inline-block; font-size: 12px; font-weight: 600; color: var(--c-purple); background: rgba(168,85,247,0.08); padding: 4px 12px; border-radius: var(--radius-pill); margin-bottom: 14px; }
+.question-title { font-size: 20px; font-weight: 700; line-height: 1.4; margin-bottom: 8px; color: var(--c-text); }
+.question-desc { font-size: 14px; color: var(--c-text-muted); margin-bottom: 24px; }
+
+.options { display: flex; flex-direction: column; gap: 12px; }
+.option { display: flex; align-items: center; gap: 14px; background: var(--c-surface); border: 2px solid var(--c-border); border-radius: var(--radius-md); padding: 16px 18px; cursor: pointer; transition: all 0.2s ease; text-align: left; position: relative; overflow: hidden; }
+.option:hover { border-color: var(--c-purple); background: rgba(168,85,247,0.03); }
+.option:active { transform: scale(0.98); }
+.option.selected { border-color: var(--c-primary); background: rgba(236,72,153,0.06); }
+.option.selected::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--c-primary), var(--c-secondary)); }
+.option-letter { width: 32px; height: 32px; border-radius: 50%; background: #F5F5F5; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--c-text-muted); flex-shrink: 0; transition: all 0.2s ease; }
+.option.selected .option-letter { background: linear-gradient(135deg, var(--c-primary), var(--c-secondary)); color: #fff; }
+.option-text { flex: 1; font-size: 15px; font-weight: 500; color: var(--c-text); }
+
+#loading-screen { justify-content: center; align-items: center; text-align: center; }
+.loading-spinner { width: 60px; height: 60px; border: 4px solid #E2E8F0; border-top-color: var(--c-primary); border-right-color: var(--c-secondary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 24px; }
+.loading-text { font-size: 18px; font-weight: 700; color: var(--c-text); margin-bottom: 8px; }
+.loading-sub { font-size: 14px; color: var(--c-text-muted); }
+.loading-steps { margin-top: 24px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.loading-step { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--c-text-muted); opacity: 0; transition: opacity 0.3s; }
+.loading-step.active { opacity: 1; color: var(--c-primary); font-weight: 600; }
+.loading-step.done { opacity: 1; color: var(--c-teal); }
+.loading-step .check { font-size: 16px; }
+
+#result-screen { justify-content: flex-start; padding-bottom: 60px; }
+.result-header { text-align: center; margin-bottom: 24px; }
+.result-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--c-primary); background: rgba(236,72,153,0.1); padding: 4px 14px; border-radius: var(--radius-pill); margin-bottom: 12px; }
+.result-emoji { font-size: 56px; margin-bottom: 8px; }
+.result-type { font-size: 30px; font-weight: 900; color: var(--c-text); margin-bottom: 4px; }
+.result-name { font-size: 18px; font-weight: 600; color: var(--c-primary); margin-bottom: 6px; }
+.result-tagline { font-size: 14px; color: var(--c-text-muted); }
+
+.result-card { background: var(--c-surface); border-radius: var(--radius-lg); padding: 24px 20px; box-shadow: var(--c-shadow-lg); margin-bottom: 16px; }
+.result-card h3 { font-size: 16px; font-weight: 700; color: var(--c-text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.result-card h3 .emoji { font-size: 20px; }
+.result-desc { font-size: 14px; color: var(--c-text-light); line-height: 1.8; margin-bottom: 16px; }
+
+.dim-chart { display: flex; flex-direction: column; gap: 14px; }
+.dim-row { display: flex; flex-direction: column; gap: 4px; }
+.dim-bar-container { display: flex; align-items: center; gap: 8px; }
+.dim-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; background: #FDF2F8; }
+.dim-bar-track { flex: 1; height: 24px; background: #F1F5F9; border-radius: var(--radius-sm); overflow: hidden; position: relative; }
+.dim-bar-fill { height: 100%; border-radius: var(--radius-sm); transition: width 0.8s cubic-bezier(0.4,0,0.2,1); display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 11px; font-weight: 700; color: #fff; min-width: 28px; }
+.dim-bar-fill.pink { background: linear-gradient(90deg, #EC4899, #F472B6); }
+.dim-bar-fill.red { background: linear-gradient(90deg, #F43F5E, #FB7185); }
+.dim-bar-fill.purple { background: linear-gradient(90deg, #A855F7, #C084FC); }
+.dim-bar-fill.amber { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+.dim-label-row { font-size: 11px; color: var(--c-text-muted); display: flex; justify-content: space-between; padding: 0 4px; }
+
+.trait-list { display: flex; flex-direction: column; gap: 8px; }
+.trait-item { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; color: var(--c-text-light); line-height: 1.6; }
+.trait-item .icon { flex-shrink: 0; margin-top: 1px; }
+.trait-item.strength .icon { color: var(--c-teal); }
+.trait-item.weakness .icon { color: #EF4444; }
+
+.compat-section { display: flex; flex-direction: column; gap: 12px; }
+.compat-row { display: flex; align-items: center; gap: 10px; }
+.compat-label { font-size: 12px; color: var(--c-text-muted); width: 60px; flex-shrink: 0; }
+.compat-types { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.compat-type { background: linear-gradient(135deg, rgba(236,72,153,0.1), rgba(244,63,94,0.1)); color: var(--c-primary); font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: var(--radius-pill); }
+.compat-type.warm { background: rgba(236,72,153,0.15); color: var(--c-secondary); }
+.compat-type.cool { background: rgba(148,163,184,0.15); color: var(--c-text-light); }
+
+.growth-box { background: #FFF1F2; border: 1px solid rgba(236,72,153,0.2); border-radius: var(--radius-md); padding: 16px; }
+.growth-box .item { font-size: 13px; color: var(--c-text-light); line-height: 1.7; margin-bottom: 8px; padding-left: 4px; }
+.growth-box .item:last-child { margin-bottom: 0; }
+.growth-box .num { font-weight: 700; color: var(--c-primary); margin-right: 4px; }
+
+.love-lang { display: flex; flex-direction: column; gap: 8px; }
+.lang-item { display: flex; align-items: center; gap: 10px; background: #FDF2F8; border-radius: var(--radius-md); padding: 12px 14px; }
+.lang-item .licon { font-size: 20px; flex-shrink: 0; }
+.lang-item .ltext { flex: 1; }
+.lang-item .ltext .ltitle { font-size: 14px; font-weight: 600; color: var(--c-text); }
+.lang-item .ltext .ldesc { font-size: 12px; color: var(--c-text-muted); margin-top: 2px; }
+
+.share-section { text-align: center; }
+.share-title { font-size: 15px; font-weight: 700; color: var(--c-text); margin-bottom: 6px; }
+.share-desc { font-size: 13px; color: var(--c-text-muted); margin-bottom: 16px; }
+.share-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.app-footer { text-align: center; padding: 20px 0 10px; font-size: 12px; color: var(--c-text-muted); }
+.nav-buttons { display: flex; gap: 10px; margin-top: 8px; }
+.nav-back { flex: 0 0 auto; background: transparent; border: 1.5px solid var(--c-border); color: var(--c-text-light); padding: 12px 20px; font-size: 14px; border-radius: var(--radius-pill); cursor: pointer; transition: all 0.2s; }
+.nav-back:hover { border-color: var(--c-text-light); color: var(--c-text); }
+.nav-back:disabled { opacity: 0.3; cursor: not-allowed; }
+
+@media (max-width: 360px) { #app { font-size: 15px; } .question-card { padding: 24px 18px; } .question-title { font-size: 18px; } .option { padding: 14px; } .option-text { font-size: 14px; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="screen active" id="intro-screen">
+    <div class="intro-badge"><span class="dot"></span> 情感测试 · 超准</div>
+    <div class="intro-emoji">💕</div>
+    <h1>恋爱沟通模式测试</h1>
+    <p class="subtitle">16道题，测出你在感情里的真实沟通模式，附相处建议</p>
+    <div class="intro-features">
+      <div class="intro-feature"><div class="icon">💬</div><div class="text">4维度深度分析<small>表达/冲突/需求/边界</small></div></div>
+      <div class="intro-feature"><div class="icon">💘</div><div class="text">6种沟通类型<small>你是哪一种？</small></div></div>
+      <div class="intro-feature"><div class="icon">💡</div><div class="text">附相处建议<small>和不同类型怎么相处</small></div></div>
+    </div>
+    <button class="btn btn-primary" onclick="startTest()">开始测试</button>
+  </div>
+
+  <div class="screen" id="question-screen">
+    <div class="progress-container">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-text"><span><span class="current" id="q-current">1</span> / 16</span><span id="q-percent">6%</span></div>
+      <div class="dim-label" id="dim-label">情感表达</div>
+    </div>
+    <div class="question-card" id="question-content"></div>
+  </div>
+
+  <div class="screen" id="loading-screen">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">正在分析你的恋爱模式...</div>
+    <div class="loading-sub">AI匹配中，请稍候</div>
+    <div class="loading-steps">
+      <div class="loading-step" id="step-1"><span>分析沟通偏好</span></div>
+      <div class="loading-step" id="step-2"><span>匹配恋爱类型</span></div>
+      <div class="loading-step" id="step-3"><span>生成相处建议</span></div>
+    </div>
+  </div>
+
+  <div class="screen" id="result-screen"></div>
+</div>
+
+<script>
+const questions = [
+  // 表达维度 (E)
+  { dim:"express", label:"情感表达", tag:"表达维度", title:"和伴侣吵架后，你通常会？",
+    options:[ {text:"主动找对方说清楚，憋着难受", type:"E"}, {text:"先自己冷静一下，等对方来找我", type:"R"} ]},
+  { dim:"express", label:"情感表达", tag:"表达维度", title:"你更倾向于怎么表达爱意？",
+    options:[ {text:"经常说情话、夸对方，不吝啬表达", type:"E"}, {text:"用行动证明，说不出口但会默默做事", type:"R"} ]},
+  { dim:"express", label:"情感表达", tag:"表达维度", title:"不开心的时候，你会？",
+    options:[ {text:"想找人说出来，倾诉一下就好很多", type:"E"}, {text:"自己消化，不想给别人添麻烦", type:"R"} ]},
+  { dim:"express", label:"情感表达", tag:"表达维度", title:"你怎么看「情侣要经常沟通」这件事？",
+    options:[ {text:"非常重要，有什么说出来才不会憋出问题", type:"E"}, {text:"有些事不用说，懂你的人自然懂", type:"R"} ]},
+
+  // 冲突维度 (C)
+  { dim:"conflict", label:"冲突处理", tag:"冲突维度", title:"吵架的时候，你通常是？",
+    options:[ {text:"越吵越激动，必须当场说清楚", type:"C"}, {text:"越吵越想逃，想先冷静再说", type:"A"} ]},
+  { dim:"conflict", label:"冲突处理", tag:"冲突维度", title:"对方惹你生气了，你会？",
+    options:[ {text:"直接说出来，告诉他我为什么生气", type:"C"}, {text:"不说，但会冷战/摆脸色等他发现", type:"A"} ]},
+  { dim:"conflict", label:"冲突处理", tag:"冲突维度", title:"你觉得吵架这件事？",
+    options:[ {text:"吵完就没事了，吵架也是一种沟通", type:"C"}, {text:"很伤感情，能不吵就不吵", type:"A"} ]},
+  { dim:"conflict", label:"冲突处理", tag:"冲突维度", title:"闹矛盾时你最怕的是？",
+    options:[ {text:"对方沉默不说话，像一拳打在棉花上", type:"C"}, {text:"对方一直说个不停，情绪很激动", type:"A"} ]},
+
+  // 需求维度 (N)
+  { dim:"need", label:"情感需求", tag:"需求维度", title:"你最吃哪一套？",
+    options:[ {text:"对方花时间陪我、认真听我说话", type:"N"}, {text:"对方送我礼物、为我花钱", type:"M"} ]},
+  { dim:"need", label:"情感需求", tag:"需求维度", title:"你觉得最浪漫的是？",
+    options:[ {text:"记住我说过的小事，把我放在心上", type:"N"}, {text:"为我制造惊喜，仪式感满满", type:"M"} ]},
+  { dim:"need", label:"情感需求", tag:"需求维度", title:"难过的时候你最需要？",
+    options:[ {text:"一个拥抱和陪伴", type:"N"}, {text:"对方帮我解决问题", type:"M"} ]},
+  { dim:"need", label:"情感需求", tag:"需求维度", title:"你判断对方爱不爱你的标准是？",
+    options:[ {text:"有没有把我放在第一位、是不是足够在乎", type:"N"}, {text:"有没有实际行动、愿不愿意付出", type:"M"} ]},
+
+  // 边界维度 (B)
+  { dim:"boundary", label:"亲密边界", tag:"边界维度", title:"你更喜欢的相处节奏是？",
+    options:[ {text:"天天黏在一起，什么事都想分享", type:"B"}, {text:"各自有空间，不用每时每刻联系", type:"D"} ]},
+  { dim:"boundary", label:"亲密边界", tag:"边界维度", title:"对方太忙没及时回消息，你会？",
+    options:[ {text:"有点不安，忍不住想他在干嘛", type:"B"}, {text:"正常啊，忙完自然会找我", type:"D"} ]},
+  { dim:"boundary", label:"亲密边界", tag:"边界维度", title:"你怎么看「恋爱后还要有异性朋友」？",
+    options:[ {text:"不太能接受，会吃醋不开心", type:"B"}, {text:"很正常，每个人都有自己的社交圈", type:"D"} ]},
+  { dim:"boundary", label:"亲密边界", tag:"边界维度", title:"你理想的恋爱状态是？",
+    options:[ {text:"两个人融为一体，彼此是对方的全部", type:"B"}, {text:"两个人并肩前行，但各自独立", type:"D"} ]},
+];
+
+const types = {
+  "ECNB": { emoji:"🔥", name:"炽热爱恋型", color:"#EC4899",
+    tagline:"热烈直接，爱就要说出来",
+    desc:"你在感情里是一个非常热烈直接的人。你敢爱敢恨，喜欢就大胆表达，从不藏着掖着。对你来说，爱一个人就是要让对方知道，就是要黏在一起。你的感情浓度很高，爱憎分明，喜欢你的人会觉得跟你在一起特别有安全感——因为你的喜欢从来都不是猜的。",
+    strengths:["表达能力强——对方永远知道你在想什么","感情浓度高——跟你在一起很有恋爱的感觉","敢爱敢恨——不内耗，喜欢就追不喜欢就走"],
+    weaknesses:["情绪波动大——吵架时容易说狠话","占有欲强——容易吃醋和不安","太需要回应——对方冷淡一点就会多想"],
+    compat:{warm:["安全理智型","温柔治愈型"],good:["炽热爱恋型","行动付出型"],cool:["回避独立型","冷战内敛型"]},
+    growth:[
+      "学会给对方空间——不是所有的爱都要24小时黏在一起，距离也能产生美",
+      "吵架前先数3秒——情绪上头时说的话最伤人，给自己一个缓冲时间",
+      "理解不同的爱的语言——有些人不说不代表不爱，试着看到行动背后的心意"],
+    loveLangs:[
+      {icon:"💬",title:"肯定的言语",desc:"你需要经常听到对方的赞美和爱意"},
+      {icon:"⏰",title:"高质量陪伴",desc:"全身心投入的相处时间对你最重要"} ]
+  },
+  "ECND": { emoji:"⚡", name:"坦率独立型", color:"#F43F5E",
+    tagline:"直接又独立，爱你但也做自己",
+    desc:"你是一个很有魅力的恋爱对象——直接、坦诚、不矫情。你有什么说什么，不会让对方猜来猜去，但同时你也有自己的生活和边界，不会因为恋爱就失去自我。你既能享受两个人的甜蜜，也能一个人把日子过好。",
+    strengths:["坦诚直接——跟你相处不累，不用猜","独立性强——有自己的生活，不黏人","情绪稳定——不闹不做作，讲道理"],
+    weaknesses:["有时候太硬——不够柔软，让人觉得没那么需要对方","容易不耐烦——对方矫情的时候你会觉得麻烦","缺乏仪式感——觉得做那些事没意义"],
+    compat:{warm:["温柔治愈型","行动付出型"],good:["炽热爱恋型","安全理智型"],cool:["冷战内敛型","炽热爱恋型"]},
+    growth:[
+      "偶尔示弱也没关系——你太独立了，有时候让对方照顾你一下，反而能增进感情",
+      "增加一些仪式感——不是矫情，是给感情保鲜的小技巧",
+      "多表达你的感受——你习惯自己扛，但说出来对方才能更懂你"],
+    loveLangs:[
+      {icon:"💪",title:"行动的支持",desc:"你看重对方实际做了什么"},
+      {icon:"🤝",title:"尊重与认可",desc:"你需要对方尊重你的独立和边界"} ]
+  },
+  "ECMB": { emoji:"💎", name:"浓烈付出型", color:"#A855F7",
+    tagline:"为爱付出一切的行动派",
+    desc:"你是那种「爱你就把全世界给你」的类型。你不仅说得出情话，更做得出实事——对方的生日你提前准备礼物，对方生病你第一时间赶到，对方需要什么你都默默记在心里。你的爱很有分量，被你爱着是一件特别幸福的事。",
+    strengths:["行动力强——说到做到，不玩虚的","真心付出——对爱的人掏心掏肺","很会照顾人——细节里全是爱"],
+    weaknesses:["容易付出太多——把对方宠坏了自己还委屈","期待对等回报——我付出多少就希望对方也一样","占有欲强——对爱的人特别在意"],
+    compat:{warm:["温柔治愈型","安全理智型"],good:["炽热爱恋型","行动付出型"],cool:["回避独立型"]},
+    growth:[
+      "七分爱人三分爱己——付出型的人最容易委屈的是自己，留一点爱给自己",
+      "降低期待值——不是所有人都像你一样擅长表达和付出，方式不同不代表爱得少",
+      "学会直接提需求——别等对方「应该懂」，你不说别人真的不一定知道"],
+    loveLangs:[
+      {icon:"🎁",title:"礼物与惊喜",desc:"你喜欢用物质表达爱，也喜欢收到惊喜"},
+      {icon:"🤗",title:"身体的接触",desc:"拥抱和亲密接触让你感到被爱"} ]
+  },
+  "ECMD": { emoji:"🎯", name:"目标导向型", color:"#F59E0B",
+    tagline:"理性恋爱，行动派表达",
+    desc:"你在感情里是一个比较理性的人。你不太说情话，但你会用行动证明——记得对方的喜好、规划两个人的未来、在对方需要的时候出现。你觉得爱不是说出来的，是做出来的。你适合同样务实、有行动力的伴侣。",
+    strengths:["靠谱踏实——跟你在一起很有安全感","行动派——说的少做的多","有规划——会为两个人的未来考虑"],
+    weaknesses:["不够浪漫——有时候太务实了少点情调","不善于表达——对方会觉得你不够爱","容易忽视情绪——讲道理的时候多，共情的时候少"],
+    compat:{warm:["温柔治愈型","行动付出型"],good:["坦率独立型","安全理智型"],cool:["炽热爱恋型"]},
+    growth:[
+      "偶尔说点情话不丢人——虽然你觉得行动就够了，但对方真的很需要听到你说",
+      "先回应情绪再解决问题——对方难过的时候，先抱一抱比说「你应该这样」管用",
+      "制造一些小惊喜——不用多贵，让对方知道你心里有他就够了"],
+    loveLangs:[
+      {icon:"💼",title:"实际的支持",desc:"帮对方解决问题是你表达爱的方式"},
+      {icon:"🏠",title:"共同的未来",desc:"你向往稳定和长远的关系"} ]
+  },
+  "RANB": { emoji:"🌸", name:"温柔治愈型", color:"#EC4899",
+    tagline:"细腻柔软的内在型恋人",
+    desc:"你是那种温柔到骨子里的人。你不擅长说甜言蜜语，但你的关心都藏在细节里——记得对方爱吃什么、在对方累的时候默默递一杯水、生气了也舍不得说重话。你内心很柔软，需要很多的安全感和确认，但你给的爱也特别温暖治愈。",
+    strengths:["细腻体贴——总能注意到别人忽略的细节","温柔治愈——跟你在一起特别舒服","忠诚专一——认定了就会很认真"],
+    weaknesses:["容易内耗——想太多又不说出来","不擅长吵架——一吵架就想哭/想逃","安全感不足——很容易患得患失"],
+    compat:{warm:["炽热爱恋型","目标导向型"],good:["温柔治愈型","行动付出型"],cool:["回避独立型","冷战内敛型"]},
+    growth:[
+      "有需求直接说——别让对方猜，你不说他真的不知道，直接说不是矫情",
+      "相信自己值得被爱——你不需要做什么来换取爱，你本身就值得",
+      "学会表达愤怒——生气不是坏事，说出来反而更健康，憋着只会攒成大问题"],
+    loveLangs:[
+      {icon:"🎧",title:"用心的倾听",desc:"被认真倾听和理解对你很重要"},
+      {icon:"💝",title:"细心的照顾",desc:"生活里的小细节最让你心动"} ]
+  },
+  "RAND": { emoji:"🌿", name:"安全理智型", color:"#14B8A6",
+    tagline:"成熟稳定的理想型伴侣",
+    desc:"你是那种「别人家的对象」——情绪稳定、通情达理、有边界感又不失温度。你不矫情、不折腾，有问题就好好沟通，也懂得给对方空间。跟你在一起的人会觉得特别舒服和安心。你可能不是最有激情的那个，但绝对是最适合长期走下去的那个。",
+    strengths:["情绪稳定——不闹脾气，讲道理","边界感好——有自己的生活也尊重对方的空间","成熟可靠——遇到问题能冷静处理"],
+    weaknesses:["有时候太理性——少了点恋爱的感觉","情绪藏太深——对方不知道你到底在想什么","不容易上头——很难真正爱上谁"],
+    compat:{warm:["炽热爱恋型","温柔治愈型"],good:["坦率独立型","安全理智型"],cool:["冷战内敛型"]},
+    growth:[
+      "允许自己偶尔失控——恋爱不全是理性的，有时候冲动一下也挺好",
+      "多表达你的感受——你太「懂事」了，反而让人觉得没那么被需要",
+      "给感情增加一点仪式感——平淡是真，但偶尔的惊喜也是调味剂"],
+    loveLangs:[
+      {icon:"🤝",title:"尊重与信任",desc:"健康平等的关系是你最看重的"},
+      {icon:"🏡",title:"稳定的陪伴",desc:"细水长流的感情最让你安心"} ]
+  },
+  "RAMB": { emoji:"🧸", name:"行动付出型", color:"#F59E0B",
+    tagline:"嘴笨但心热的默默守护型",
+    desc:"你是典型的「嘴笨型」恋人。甜言蜜语你说不出口，吵架也不知道怎么回嘴，但你会用行动证明一切——对方的事你记在心里默默做，对方需要的时候你一定在。你的爱很沉很实，需要用心才能感受到，感受到了就再也放不下。",
+    strengths:["行动力强——做的永远比说的多","靠谱踏实——跟你在一起很安心","默默付出——对爱的人毫无保留"],
+    weaknesses:["不善于表达——对方常常get不到你的心意","容易委屈——付出很多但不说，自己偷偷难受","不擅长沟通——遇到矛盾容易冷战"],
+    compat:{warm:["炽热爱恋型","坦率独立型"],good:["温柔治愈型","安全理智型"],cool:["回避独立型"]},
+    growth:[
+      "爱要大声说出来——你做了那么多，说一句「我想你」又何妨呢",
+      "吵架别憋着——你不说对方真的不知道你在生气什么，冷战最伤感情",
+      "表达你的需求——你总是在付出，但你也需要被照顾，说出来不是索取"],
+    loveLangs:[
+      {icon:"🛠",title:"服务的行动",desc:"为对方做事是你最自然的表达"},
+      {icon:"🎁",title:"用心的礼物",desc:"你喜欢送对方实用又贴心的东西"} ]
+  },
+  "RAMD": { emoji:"🦋", name:"回避独立型", color:"#64748B",
+    tagline:"怕受伤所以保持距离的人",
+    desc:"你在感情里习惯保持一点距离。不是你不爱，是你太怕受伤了——靠得太近就怕失去，投入太多就怕失望。你看起来很独立、很酷，但内心其实很柔软。你需要一个足够有耐心、能慢慢走进你心里的人。",
+    strengths:["独立性强——有自己的生活和圈子","理智清醒——不会被爱情冲昏头脑","边界感好——尊重彼此的空间"],
+    weaknesses:["容易逃避——遇到问题第一反应是退缩","很难完全信任——总是给自己留后路","让人觉得冷——对方会觉得你不够爱"],
+    compat:{warm:["安全理智型","温柔治愈型"],good:["行动付出型","坦率独立型"],cool:["炽热爱恋型"]},
+    growth:[
+      "试着往前迈一步——不是所有人都会让你失望，给自己也给对方一个机会",
+      "告诉对方你的感受——你不说「我需要你」，对方以为你不需要，其实你只是不说",
+      "允许自己依赖——独立是好事，但偶尔依赖一下也不会失去自我"],
+    loveLangs:[
+      {icon:"🤲",title:"尊重的距离",desc:"不被控制、有自己的空间对你很重要"},
+      {icon:"📈",title:"共同的成长",desc:"你欣赏能和你一起进步的人"} ]
+  }
+};
+
+let currentQ = 0;
+let answers = new Array(16).fill(null);
+
+function startTest() { currentQ = 0; answers = new Array(16).fill(null); showScreen('question-screen'); renderQuestion(); }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+function renderQuestion() {
+  const q = questions[currentQ]; const total = questions.length; const progress = ((currentQ+1)/total)*100;
+  document.getElementById('progress-fill').style.width = progress+'%';
+  document.getElementById('q-current').textContent = currentQ+1;
+  document.getElementById('q-percent').textContent = Math.round(progress)+'%';
+  document.getElementById('dim-label').textContent = q.label;
+  const selectedIdx = answers[currentQ];
+  const html = `
+    <div class="question-tag">${q.tag}</div>
+    <h2 class="question-title">${q.title}</h2>
+    <div class="options">
+      ${q.options.map((opt,i)=>`
+        <div class="option ${selectedIdx===i?'selected':''}" onclick="selectOption(${i})">
+          <div class="option-letter">${String.fromCharCode(65+i)}</div>
+          <div class="option-text">${opt.text}</div>
+        </div>`).join('')}
+    </div>
+    <div class="nav-buttons"><button class="nav-back" onclick="prevQuestion()" ${currentQ===0?'disabled':''}>上一题</button></div>`;
+  const content = document.getElementById('question-content');
+  content.style.animation='none'; content.offsetHeight; content.style.animation='slideInRight 0.4s ease';
+  content.innerHTML = html;
+}
+function selectOption(idx) {
+  answers[currentQ] = idx;
+  document.querySelectorAll('.option').forEach((el,i)=>{ el.classList.toggle('selected', i===idx); });
+  setTimeout(()=>{ if (currentQ < questions.length-1) { currentQ++; renderQuestion(); } else { showLoading(); } }, 300);
+}
+function prevQuestion() { if (currentQ > 0) { currentQ--; renderQuestion(); } }
+function showLoading() {
+  showScreen('loading-screen');
+  document.querySelectorAll('.loading-step').forEach(s=>{s.classList.remove('active','done');});
+  setTimeout(()=>{document.getElementById('step-1').classList.add('active');},300);
+  setTimeout(()=>{document.getElementById('step-1').classList.remove('active');document.getElementById('step-1').classList.add('done');document.getElementById('step-1').innerHTML='<span class="check">✓</span> 分析沟通偏好';},800);
+  setTimeout(()=>{document.getElementById('step-2').classList.add('active');},900);
+  setTimeout(()=>{document.getElementById('step-2').classList.remove('active');document.getElementById('step-2').classList.add('done');document.getElementById('step-2').innerHTML='<span class="check">✓</span> 匹配恋爱类型';},1500);
+  setTimeout(()=>{document.getElementById('step-3').classList.add('active');},1600);
+  setTimeout(()=>{document.getElementById('step-3').classList.remove('active');document.getElementById('step-3').classList.add('done');document.getElementById('step-3').innerHTML='<span class="check">✓</span> 生成相处建议';},2200);
+  setTimeout(()=>{showResult();},2500);
+}
+
+function getTypeKey() {
+  // Determine dominant in each dimension
+  const dims = {express:0, conflict:0, need:0, boundary:0};
+  answers.forEach((ansIdx, qIdx) => {
+    if (ansIdx === null) return;
+    const dim = questions[qIdx].dim;
+    const type = questions[qIdx].options[ansIdx].type;
+    if (dim === 'express' && type === 'E') dims.express++;
+    else if (dim === 'conflict' && type === 'C') dims.conflict++;
+    else if (dim === 'need' && type === 'N') dims.need++;
+    else if (dim === 'boundary' && type === 'B') dims.boundary++;
+  });
+  // 8 types mapping
+  const e = dims.express >= 2 ? 'E' : 'R';
+  const c = dims.conflict >= 2 ? 'C' : 'A';
+  const n = dims.need >= 2 ? 'N' : 'M';
+  const b = dims.boundary >= 2 ? 'B' : 'D';
+  return e + c + n + b;
+}
+
+function showResult() {
+  const typeKey = getTypeKey();
+  const data = types[typeKey] || types["RANB"]; // fallback
+
+  // Dimension percentages
+  const dimCounts = {express:0, conflict:0, need:0, boundary:0};
+  questions.forEach((q,i) => { if (answers[i]!==null) { dimCounts[q.dim]++; } });
+
+  const dimData = [
+    {label:"情感表达", icon:"💬", count:dimCounts.express, val: answers.reduce((s,ai,qi)=> s+(ai!==null && questions[qi].dim==='express' && questions[qi].options[ai].type==='E'?1:0), 0), color:"pink", typeE:"表达型", typeR:"内敛型"},
+    {label:"冲突处理", icon:"⚔️", count:dimCounts.conflict, val: answers.reduce((s,ai,qi)=> s+(ai!==null && questions[qi].dim==='conflict' && questions[qi].options[ai].type==='C'?1:0), 0), color:"red", typeE:"对抗型", typeR:"回避型"},
+    {label:"情感需求", icon:"💝", count:dimCounts.need, val: answers.reduce((s,ai,qi)=> s+(ai!==null && questions[qi].dim==='need' && questions[qi].options[ai].type==='N'?1:0), 0), color:"purple", typeE:"情感型", typeR:"实际型"},
+    {label:"亲密边界", icon:"🌱", count:dimCounts.boundary, val: answers.reduce((s,ai,qi)=> s+(ai!==null && questions[qi].dim==='boundary' && questions[qi].options[ai].type==='B'?1:0), 0), color:"amber", typeE:"黏人型", typeR:"独立型"}
+  ];
+
+  let dimChartHtml = '';
+  dimData.forEach(d => {
+    const pct = Math.round((d.val/d.count)*100);
+    const leftLabel = d.typeE;
+    const rightLabel = d.typeR;
+    dimChartHtml += `
+      <div class="dim-row">
+        <div class="dim-label-row"><span>${leftLabel}</span><span>${rightLabel}</span></div>
+        <div class="dim-bar-container">
+          <div class="dim-icon">${d.icon}</div>
+          <div class="dim-bar-track"><div class="dim-bar-fill ${d.color}" style="width:${Math.max(10,pct)}%">${pct}%</div></div>
+        </div>
+      </div>`;
+  });
+
+  let strengthHtml = data.strengths.map(s=>`<div class="trait-item strength"><span class="icon">✓</span><span>${s}</span></div>`).join('');
+  let weaknessHtml = data.weaknesses.map(w=>`<div class="trait-item weakness"><span class="icon">!</span><span>${w}</span></div>`).join('');
+
+  let compatHtml = '';
+  if (data.compat.warm) {
+    compatHtml += `<div class="compat-row"><div class="compat-label">最佳拍档</div><div class="compat-types">${data.compat.warm.map(t=>`<span class="compat-type warm">${t}</span>`).join('')}</div></div>`;
+  }
+  if (data.compat.good) {
+    compatHtml += `<div class="compat-row"><div class="compat-label">相处融洽</div><div class="compat-types">${data.compat.good.map(t=>`<span class="compat-type">${t}</span>`).join('')}</div></div>`;
+  }
+  if (data.compat.cool) {
+    compatHtml += `<div class="compat-row"><div class="compat-label">需要磨合</div><div class="compat-types">${data.compat.cool.map(t=>`<span class="compat-type cool">${t}</span>`).join('')}</div></div>`;
+  }
+
+  let growthHtml = data.growth.map((g,i)=>`<div class="item"><span class="num">${i+1}.</span>${g}</div>`).join('');
+  let langHtml = data.loveLangs.map(l=>`<div class="lang-item"><div class="licon">${l.icon}</div><div class="ltext"><div class="ltitle">${l.title}</div><div class="ldesc">${l.desc}</div></div></div>`).join('');
+
+  const html = `
+    <div class="result-header">
+      <div class="result-badge">💕 你的恋爱沟通模式</div>
+      <div class="result-emoji">${data.emoji}</div>
+      <div class="result-type" style="color:${data.color}">${typeKey}</div>
+      <div class="result-name">${data.name}</div>
+      <div class="result-tagline">${data.tagline}</div>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">💭</span> 类型解析</h3>
+      <p class="result-desc">${data.desc}</p>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">📊</span> 四维偏好</h3>
+      <div class="dim-chart">${dimChartHtml}</div>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">💪</span> 恋爱中的优势</h3>
+      <div class="trait-list">${strengthHtml}</div>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">⚠️</span> 需要注意</h3>
+      <div class="trait-list">${weaknessHtml}</div>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">💘</span> 匹配类型</h3>
+      <div class="compat-section">${compatHtml}</div>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">💝</span> 你的爱之语</h3>
+      <div class="love-lang">${langHtml}</div>
+    </div>
+
+    <div class="result-card">
+      <h3><span class="emoji">🌱</span> 相处提升建议</h3>
+      <div class="growth-box">${growthHtml}</div>
+    </div>
+
+    <div class="result-card share-section">
+      <div class="share-title">你是哪种恋爱沟通模式？</div>
+      <div class="share-desc">截图保存结果，分享给对象也来测一测</div>
+      <div class="share-buttons">
+        <button class="btn btn-primary" onclick="retakeTest()">再测一次</button>
+        <button class="btn btn-secondary" onclick="shareResult()">分享结果</button>
+      </div>
+    </div>
+    <div class="app-footer">本测试基于恋爱沟通四维度模型生成<br>结果仅供参考，每段关系都是独一无二的</div>`;
+  document.getElementById('result-screen').innerHTML = html;
+  showScreen('result-screen');
+}
+function retakeTest() { currentQ = 0; answers = new Array(16).fill(null); showScreen('intro-screen'); }
+function shareResult() {
+  if (navigator.share) { navigator.share({title:'恋爱沟通模式测试',text:'我测了恋爱沟通模式，你也来试试！',url:window.location.href}).catch(()=>{}); }
+  else { const url=window.location.href; if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>{alert('链接已复制！去小红书或朋友圈粘贴分享吧～');}).catch(()=>{prompt('复制链接分享给朋友：',url);});} else { prompt('复制链接分享给朋友：',url); } }
+}
+</script>
+</body>
+</html>
